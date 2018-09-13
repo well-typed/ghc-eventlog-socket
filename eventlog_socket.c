@@ -78,6 +78,8 @@ void eventlog_socket_start(void);
 
 void eventlog_socket_start()
 {
-  endEventLogging();
-  initEventLogging(&socket_writer);
+  if (RtsFlags.TraceFlags.tracing == TRACE_EVENTLOG) {
+    endEventLogging();
+    initEventLogging(&socket_writer);
+  }
 }
