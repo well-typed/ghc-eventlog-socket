@@ -40,7 +40,7 @@ static void open_socket(void)
   if (listen(listen_fd, LISTEN_BACKLOG) == -1)
     abort();
 
-  printf("waiting for connection to %s...", sock_path);
+  fprintf(stderr, "waiting for connection to %s...", sock_path);
   int len;
   client_fd = accept(listen_fd, (struct sockaddr *) &remote, &len);
 }
@@ -80,6 +80,7 @@ void eventlog_socket_start()
 {
   if (RtsFlags.TraceFlags.tracing == TRACE_EVENTLOG) {
     endEventLogging();
+    open_socket();
     initEventLogging(&socket_writer);
   }
 }
