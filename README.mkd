@@ -20,3 +20,8 @@ for realtime profiling and performance analysis. There are still numerous open q
  * do we want to support multiple consumers?
  * should we block program startup to wait for a consumer to connect?
  * if not, how do we make sure that the consumer is sent the eventlog header?
+ * what should happen when a consumer disconnects? we could either
+   * close the socket and stop streaming
+   * just pause the eventlog until a new consumer shows up
+   * pause the program until a new consumer shows up
+   * kill the program
