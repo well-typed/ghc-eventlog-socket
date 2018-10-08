@@ -1,0 +1,19 @@
+# eventlog-socket
+
+Link against this library to send GHC's eventlog stream to a Unix domain socket.
+
+For instance,
+```
+$ ghc -package eventlog-socket -eventlog MyProgram.hs
+$ GHC_EVENTLOG_SOCKET=/tmp/my-program.eventlog.sock ./MyProgram +RTS -l &
+$ nc -U /tmp/my-program.eventlog.sock > my-program.eventlog
+```
+
+This is a prototype to play around with the possibility of using the eventlog
+for realtime profiling and performance analysis. There are still numerous open questions:
+
+ * access control?
+ * support only Unix domain sockets or also tcp/ip?
+ * do we want to support multiple consumers?
+ * should we block program startup to wait for a consumer to connect?
+ * if not, how do we make sure that the consumer is sent the eventlog header?
