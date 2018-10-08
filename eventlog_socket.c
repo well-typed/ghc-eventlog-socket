@@ -34,6 +34,7 @@ static void open_socket(void)
   unlink(sock_path);
   if (bind(listen_fd, (struct sockaddr *) &local,
            sizeof(struct sockaddr_un)) == -1) {
+    fprintf(stderr, "failed to bind socket %s: %s\n", sock_path, strerror(errno));
     abort();
   }
 
