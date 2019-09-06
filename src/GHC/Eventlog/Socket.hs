@@ -1,5 +1,7 @@
 {-# LANGUAGE ForeignFunctionInterface #-}
 
+-- |
+-- Stream GHC eventlog events to external processes.
 module GHC.Eventlog.Socket
     ( start
     ) where

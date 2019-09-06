@@ -18,6 +18,7 @@ void endEventLogging(void);
 
 static void writer_init(void)
 {
+  // no-op
 }
 
 static void open_socket(void)
@@ -59,6 +60,7 @@ static bool writer_write(void *eventlog, size_t sz)
 
 static void writer_flush(void)
 {
+  // no-op
 }
 
 static void writer_stop(void)
