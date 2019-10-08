@@ -13,9 +13,6 @@ static int client_fd = -1;
 
 #define LISTEN_BACKLOG 5
 
-void initEventLogging(const EventLogWriter *ev_writer);
-void endEventLogging(void);
-
 static void writer_init(void)
 {
   // no-op
@@ -81,9 +78,16 @@ void eventlog_socket_start(void);
 
 void eventlog_socket_start()
 {
-  if (RtsFlags.TraceFlags.tracing == TRACE_EVENTLOG) {
-    endEventLogging();
-    open_socket();
-    initEventLogging(&socket_writer);
+  printf("hello world\n");
+  if (eventLogStatus() == EVENTLOG_NOT_SUPPORTED) {
+    fprintf(stderr, "ghc-eventlog-socket: eventlog is not supported.\n");
+    return;
   }
+
+  if (eventLogStatus() == EVENTLOG_RUNNING) {
+    endEventLogging();
+  }
+
+  open_socket();
+  startEventLogging(&socket_writer);
 }
