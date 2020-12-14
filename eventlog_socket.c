@@ -160,7 +160,7 @@ static void wait_for_connection(void)
  * Entrypoint
  *********************************************************************************/
 
-void eventlog_socket_start(bool wait)
+void eventlog_socket_start(const char *sock_path, bool wait)
 {
   if (!initialized) {
     pthread_mutex_init(&mutex, NULL);
@@ -168,7 +168,9 @@ void eventlog_socket_start(bool wait)
     initialized = true;
   }
 
-  const char *sock_path = getenv("GHC_EVENTLOG_SOCKET");
+  if (!sock_path) {
+    sock_path = getenv("GHC_EVENTLOG_SOCKET");
+  }
   if (!sock_path)
     return;
 
