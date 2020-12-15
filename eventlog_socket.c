@@ -92,8 +92,10 @@ const EventLogWriter socket_writer = {
 static void *listen_socket(void * _unused)
 {
   while (true) {
-    if (listen(listen_fd, LISTEN_BACKLOG) == -1)
+    if (listen(listen_fd, LISTEN_BACKLOG) == -1) {
+      PRINT_ERR("listen() failed: %s\n", strerror(errno));
       abort();
+    }
 
     struct sockaddr_un remote;
     int len;
@@ -114,11 +116,17 @@ static void *listen_socket(void * _unused)
       .revents = 0,
     };
     while (true) {
-      if (poll(&pfd, 1, -1) == -1 && errno != EAGAIN) {
+      int ret = poll(&pfd, 1, -1);
+      if (ret == -1 && errno != EAGAIN) {
+        // error
         PRINT_ERR("poll() failed: %s\n", strerror(errno));
+        break;
+      } else if (ret > 0) {
+        // disconnected
         break;
       }
     }
+    client_fd = -1;
     endEventLogging();
   }
 
