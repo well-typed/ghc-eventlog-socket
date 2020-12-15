@@ -92,6 +92,9 @@ const EventLogWriter socket_writer = {
 static void *listen_socket(void * _unused)
 {
   while (true) {
+    if (listen(listen_fd, LISTEN_BACKLOG) == -1)
+      abort();
+
     struct sockaddr_un remote;
     int len;
     int fd = accept(listen_fd, (struct sockaddr *) &remote, &len);
@@ -135,9 +138,6 @@ static void open_socket(const char *sock_path)
     PRINT_ERR("failed to bind socket %s: %s\n", sock_path, strerror(errno));
     abort();
   }
-
-  if (listen(listen_fd, LISTEN_BACKLOG) == -1)
-    abort();
 
   int ret = pthread_create(&listen_thread, NULL, listen_socket, NULL);
   if (ret != 0) {
