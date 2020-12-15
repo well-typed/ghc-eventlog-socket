@@ -93,7 +93,6 @@ static void *listen_socket(void * _unused)
     struct sockaddr_un remote;
     int len;
     int fd = accept(listen_fd, (struct sockaddr *) &remote, &len);
-    printf("lock1\n");
     pthread_mutex_lock(&mutex);
     client_fd = fd;
     // Drop lock to allow initial batch of events to be written.
@@ -101,9 +100,7 @@ static void *listen_socket(void * _unused)
     startEventLogging(&socket_writer);
 
     // Announce new connection
-    printf("lock2\n");
     pthread_cond_broadcast(&new_conn_cond);
-    printf("broadcasted\n");
 
     // Wait for socket to disconnect before listening again.
     struct pollfd pfd = {
@@ -114,7 +111,6 @@ static void *listen_socket(void * _unused)
     if (poll(&pfd, 1, -1) == -1) {
       PRINT_ERR("poll() failed: %s\n", strerror(errno));
     }
-    printf("closed\n");
     endEventLogging();
   }
 
@@ -149,9 +145,7 @@ static void wait_for_connection(void)
 {
   pthread_mutex_lock(&mutex);
   while (client_fd == -1) {
-    printf("waiting\n");
     assert(pthread_cond_wait(&new_conn_cond, &mutex) == 0);
-    printf("waited\n");
   }
   pthread_mutex_unlock(&mutex);
 }
