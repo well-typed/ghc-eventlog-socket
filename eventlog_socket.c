@@ -51,7 +51,9 @@ static bool writer_write(void *eventlog, size_t sz)
     if (ret == -1) {
       PRINT_ERR("failed to write: %s\n", strerror(errno));
       pthread_mutex_unlock(&mutex);
-      return false;
+      // N.B. we still claim that the write finished since it is expected that
+      // consumers come and go freely.
+      return true;
     }
 
     sz -= ret;
