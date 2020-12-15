@@ -108,8 +108,11 @@ static void *listen_socket(void * _unused)
       .events = POLLRDHUP,
       .revents = 0,
     };
-    if (poll(&pfd, 1, -1) == -1) {
-      PRINT_ERR("poll() failed: %s\n", strerror(errno));
+    while (true) {
+      if (poll(&pfd, 1, -1) == -1 && errno != EAGAIN) {
+        PRINT_ERR("poll() failed: %s\n", strerror(errno));
+        break;
+      }
     }
     endEventLogging();
   }
