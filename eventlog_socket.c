@@ -168,6 +168,95 @@ static void wait_for_connection(void)
  * Entrypoint
  *********************************************************************************/
 
+// Copied from GHC, for now.
+static void read_trace_flags(const char *arg)
+{
+    const char *c;
+    bool enabled = true;
+    /* Syntax for tracing flags currently looks like:
+     *
+     *   -l    To turn on eventlog tracing with default trace classes
+     *   -lx   Turn on class 'x' (for some class listed below)
+     *   -l-x  Turn off class 'x'
+     *   -la   Turn on all classes
+     *   -l-a  Turn off all classes
+     *
+     * This lets users say things like:
+     *   -la-p    "all but sparks"
+     *   -l-ap    "only sparks"
+     */
+
+    /* Start by turning on the default tracing flags.
+     *
+     * Currently this is all the trace classes, except full-detail sparks.
+     * Similarly, in future we might default to slightly less verbose
+     * scheduler or GC tracing.
+     */
+    RtsFlags.TraceFlags.scheduler      = true;
+    RtsFlags.TraceFlags.gc             = true;
+    RtsFlags.TraceFlags.sparks_sampled = true;
+    RtsFlags.TraceFlags.user           = true;
+
+    for (c  = arg; *c != '\0'; c++) {
+        switch(*c) {
+        case '\0':
+            break;
+        case '-':
+            enabled = false;
+            break;
+        case 'a':
+            RtsFlags.TraceFlags.scheduler      = enabled;
+            RtsFlags.TraceFlags.gc             = enabled;
+            RtsFlags.TraceFlags.sparks_sampled = enabled;
+            RtsFlags.TraceFlags.sparks_full    = enabled;
+            RtsFlags.TraceFlags.user           = enabled;
+            enabled = true;
+            break;
+
+        case 's':
+            RtsFlags.TraceFlags.scheduler = enabled;
+            enabled = true;
+            break;
+        case 'p':
+            RtsFlags.TraceFlags.sparks_sampled = enabled;
+            enabled = true;
+            break;
+        case 'f':
+            RtsFlags.TraceFlags.sparks_full = enabled;
+            enabled = true;
+            break;
+        case 't':
+            RtsFlags.TraceFlags.timestamp = enabled;
+            enabled = true;
+            break;
+        case 'g':
+            RtsFlags.TraceFlags.gc        = enabled;
+            enabled = true;
+            break;
+        case 'n':
+            RtsFlags.TraceFlags.nonmoving_gc = enabled;
+            enabled = true;
+            break;
+        case 'u':
+            RtsFlags.TraceFlags.user      = enabled;
+            enabled = true;
+            break;
+        case 'T':
+#if defined(TICKY_TICKY)
+            RtsFlags.TraceFlags.ticky     = enabled;
+            enabled = true;
+            break;
+#else
+            errorBelch("Program not compiled with ticky-ticky support");
+            break;
+#endif
+        default:
+            errorBelch("unknown trace option: %c",*c);
+            break;
+        }
+    }
+}
+
 void eventlog_socket_start(const char *sock_path, bool wait)
 {
   if (!initialized) {
@@ -191,9 +280,13 @@ void eventlog_socket_start(const char *sock_path, bool wait)
     endEventLogging();
   }
 
+  RtsFlags.TraceFlags.tracing = TRACE_EVENTLOG;
+  read_trace_flags("");
+
   open_socket(sock_path);
   if (wait) {
     printf("ghc-eventlog-socket: Waiting for connection to %s...\n", sock_path);
     wait_for_connection();
   }
 }
+
