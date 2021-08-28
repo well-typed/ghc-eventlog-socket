@@ -1,16 +1,31 @@
 # eventlog-socket
 
-Link against this library to send GHC's eventlog stream to a Unix domain socket.
+A library to send GHC's eventlog stream over a Unix domain socket.
 
-For instance,
+In your application
+
+```cabal
+executable MyProgram
+   ...
+   build-depends: eventlog-sockete
+   ghc-options: -eventlog
 ```
-$ ghc -package eventlog-socket -eventlog MyProgram.hs
-$ GHC_EVENTLOG_SOCKET=/tmp/my-program.eventlog.sock ./MyProgram +RTS -l &
+
+```haskell
+import qualified GHC.Eventlog.Socket
+
+main :: IO ()
+main = do
+    ...
+    GHC.Eventlog.Socket.start "/tmp/my-program.eventlog.sock"
+    ...
+```
+
+```
+$ ./MyProgram +RTS -l &
 $ nc -U /tmp/my-program.eventlog.sock > my-program.eventlog
 ```
 
-Note that this will during program start-up to wait for a consumer to connect to
-the socket.
 
 This is a prototype to play around with the possibility of using the eventlog
 for realtime profiling and performance analysis. There are still numerous open questions:
@@ -18,10 +33,18 @@ for realtime profiling and performance analysis. There are still numerous open q
  * access control?
  * support only Unix domain sockets or also tcp/ip?
  * do we want to support multiple consumers?
- * should we block program startup to wait for a consumer to connect?
- * if not, how do we make sure that the consumer is sent the eventlog header?
  * what should happen when a consumer disconnects? we could either
+   * currently we just pause the eventlog until a new consumer shows up
    * close the socket and stop streaming
-   * just pause the eventlog until a new consumer shows up
    * pause the program until a new consumer shows up
    * kill the program
+
+## Development
+
+As the most code is C using following line will speedup development
+considerably (change your GHC installation path accordingly):
+
+```
+gcc -c -Iinclude -I/opt/ghc/9.0.1/lib/ghc-9.0.1/include -o eventlog_socket.o cbits/eventlog_socket.c
+gcc -c -Iinclude -I/opt/ghc/9.2.0.20210821/lib/ghc-9.2.0.20210821/include -o eventlog_socket.o cbits/eventlog_socket.c
+```

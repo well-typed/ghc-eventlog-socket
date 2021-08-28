@@ -1,32 +1,37 @@
-{-# LANGUAGE ForeignFunctionInterface #-}
+{-# LANGUAGE CApiFFI #-}
 
 -- |
 -- Stream GHC eventlog events to external processes.
-module GHC.Eventlog.Socket
-    ( startWait, start
-    ) where
+module GHC.Eventlog.Socket (
+    startWait,
+    start,
+    wait,
+) where
 
 import Foreign.C
 import Foreign.Ptr
 
 -- | Start listening for eventlog connections, blocking until a client connects.
-startWait :: Maybe FilePath
-          -- ^ File path to the unix domain socket to create. If @Nothing@, then
-          -- the @GHC_EVENTLOG_SOCKET@ environment variable is used.
+startWait :: FilePath  -- ^ File path to the unix domain socket to create.
           -> IO ()
 startWait = c_start' True
 
 -- | Start listening for eventlog connections.
-start :: Maybe FilePath
-      -- ^ File path to the unix domain socket to create. If @Nothing@, then
-      -- the @GHC_EVENTLOG_SOCKET@ environment variable is used.
+start :: FilePath      -- ^ File path to the unix domain socket to create.
       -> IO ()
 start = c_start' False
 
-c_start' :: Bool -> Maybe FilePath -> IO ()
-c_start' block socketPathMay = case socketPathMay of
-    Nothing -> c_start nullPtr block
-    Just socketPath -> withCString socketPath $ \socketPathCString ->
-                            c_start socketPathCString block
+-- | Wait (block) until a client connects.
+wait :: IO ()
+wait = c_wait
 
-foreign import ccall safe "eventlog_socket_start" c_start :: CString -> Bool -> IO ()
+c_start' :: Bool -> FilePath -> IO ()
+c_start' block socketPath =
+    withCString socketPath $ \socketPathCString ->
+    c_start socketPathCString block
+
+foreign import capi safe "eventlog_socket.h eventlog_socket_start"
+    c_start :: CString -> Bool -> IO ()
+
+foreign import capi safe "eventlog_socket.h eventlog_socket_wait"
+    c_wait :: IO ()

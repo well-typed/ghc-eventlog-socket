@@ -1,27 +1,34 @@
+cabal-version:      2.2
 name:               eventlog-socket
 version:            0.1.0.0
 synopsis:           Stream GHC eventlog events to external processes
 description:        Stream GHC eventlog events to external processes.
-license:            BSD3
+license:            BSD-3-Clause
 license-file:       LICENSE
 author:             Ben Gamari
 maintainer:         ben@smart-cactus.org
 copyright:          (c) 2018 Ben Gamari
 category:           System
 build-type:         Simple
-extra-source-files: ChangeLog.md
-cabal-version:      >=1.10
+extra-source-files:
+  ChangeLog.md
+  include/eventlog_socket.h
 
 source-repository head
   type:     git
-  location: https://github.com/mpickering/ghc-eventlog-socket.git
+  location: https://github.com/bgamari/ghc-eventlog-socket.git
 
 library
   exposed-modules:  GHC.Eventlog.Socket
-  other-extensions: ForeignFunctionInterface
+  other-extensions: CApiFFI
 
   -- Use base lower bound as proxy for GHC >= 8.10
   build-depends:    base >=4.14 && <4.17
   hs-source-dirs:   src
   default-language: Haskell2010
-  c-sources:        eventlog_socket.c
+  c-sources:        cbits/eventlog_socket.c
+  include-dirs:     include/
+
+  -- comment me out while debugging
+  -- https://github.com/haskell/cabal/issues/7635
+  cc-options:      -DNDEBUG=1
