@@ -57,6 +57,7 @@ static bool writer_write(void *eventlog, size_t sz)
     }
 
     sz -= ret;
+    eventlog += ret;
   }
 
   pthread_mutex_unlock(&mutex);
