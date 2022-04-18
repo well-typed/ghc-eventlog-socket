@@ -486,7 +486,10 @@ void eventlog_socket_wait(void)
 {
   pthread_mutex_lock(&mutex);
   while (client_fd == -1) {
-    assert(pthread_cond_wait(&new_conn_cond, &mutex) == 0);
+    int ret = pthread_cond_wait(&new_conn_cond, &mutex);
+    if (ret != 0) {
+      PRINT_ERR("failed to wait on condition variable: %s\n", strerror(ret));
+    }
   }
   pthread_mutex_unlock(&mutex);
 }
