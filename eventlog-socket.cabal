@@ -20,3 +20,16 @@ library
   hs-source-dirs:      src
   default-language:    Haskell2010
   c-sources:           eventlog_socket.c
+
+test-suite eventlog-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Paths_eventlog_socket
+  hs-source-dirs:
+      test
+  ghc-options: -eventlog -threaded -rtsopts "-with-rtsopts=-l -N"
+  build-depends:
+      base
+      , QuickCheck
+      , eventlog-socket
