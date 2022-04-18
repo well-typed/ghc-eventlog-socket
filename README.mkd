@@ -7,7 +7,7 @@ In your application
 ```cabal
 executable MyProgram
    ...
-   build-depends: eventlog-sockete
+   build-depends: eventlog-socket
    ghc-options: -eventlog
 ```
 
