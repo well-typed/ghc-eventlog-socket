@@ -12,6 +12,12 @@ $ nc -U /tmp/my-program.eventlog.sock > my-program.eventlog
 Note that this will during program start-up to wait for a consumer to connect to
 the socket.
 
+# quickstart demo
+
+`cabal build && ./demo.sh` should build everything and run the demo
+
+# description and open questions
+
 This is a prototype to play around with the possibility of using the eventlog
 for realtime profiling and performance analysis. There are still numerous open questions:
 
