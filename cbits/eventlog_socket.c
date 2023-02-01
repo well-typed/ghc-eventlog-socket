@@ -531,4 +531,3 @@ void eventlog_socket_start(const char *sock_path, bool wait)
     eventlog_socket_wait();
   }
 }
-

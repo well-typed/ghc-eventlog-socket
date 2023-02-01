@@ -23,7 +23,7 @@ library
   other-extensions: CApiFFI
 
   -- Use base lower bound as proxy for GHC >= 8.10
-  build-depends:    base >=4.14 && <4.17
+  build-depends:    base >=4.14 && <4.18
   hs-source-dirs:   src
   default-language: Haskell2010
   c-sources:        cbits/eventlog_socket.c
@@ -31,4 +31,4 @@ library
 
   -- comment me out while debugging
   -- https://github.com/haskell/cabal/issues/7635
-  cc-options:      -DNDEBUG=1
+  -- cc-options:      -DNDEBUG=1
