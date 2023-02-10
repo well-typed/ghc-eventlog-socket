@@ -20,6 +20,10 @@
 #define LISTEN_BACKLOG 5
 #define POLL_TIMEOUT 10000
 
+#ifndef POLLRDHUP
+#define POLLRDHUP POLLHUP
+#endif
+
 // logging helper macros:
 // - use PRINT_ERR to unconditionally log erroneous situations
 // - otherwise use DEBUG_ERR
