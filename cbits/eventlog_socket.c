@@ -247,7 +247,7 @@ static void listen_iteration() {
   }
 
   struct sockaddr_un remote;
-  int len;
+  unsigned int len;
 
   struct pollfd pfd_accept = {
     .fd = listen_fd,
