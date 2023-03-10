@@ -20,6 +20,10 @@
 #define LISTEN_BACKLOG 5
 #define POLL_TIMEOUT 10000
 
+#ifndef POLLRDHUP
+#define POLLRDHUP 0x2000
+#endif
+
 // logging helper macros:
 // - use PRINT_ERR to unconditionally log erroneous situations
 // - otherwise use DEBUG_ERR
@@ -242,7 +246,7 @@ static void listen_iteration() {
   }
 
   struct sockaddr_un remote;
-  int len;
+  unsigned int len;
 
   struct pollfd pfd_accept = {
     .fd = listen_fd,
