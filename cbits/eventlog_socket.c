@@ -18,7 +18,8 @@
 #include "eventlog_socket.h"
 
 #define LISTEN_BACKLOG 5
-#define POLL_TIMEOUT 10000
+#define POLL_LISTEN_TIMEOUT 10000
+#define POLL_WRITE_TIMEOUT 1000
 
 #ifndef POLLRDHUP
 #define POLLRDHUP POLLHUP
@@ -256,7 +257,7 @@ static void listen_iteration() {
 
   // poll until we can accept
   while (true) {
-    int ret = poll(&pfd_accept, 1, POLL_TIMEOUT);
+    int ret = poll(&pfd_accept, 1, POLL_LISTEN_TIMEOUT);
     if (ret ==  -1) {
       PRINT_ERR("poll() failed: %s\n", strerror(errno));
       return;
@@ -316,7 +317,7 @@ static void nonwrite_iteration(int fd) {
     .revents = 0,
   };
 
-  int ret = poll(&pfd, 1, POLL_TIMEOUT);
+  int ret = poll(&pfd, 1, POLL_WRITE_TIMEOUT);
   if (ret == -1 && errno != EAGAIN) {
     // error
     PRINT_ERR("poll() failed: %s\n", strerror(errno));
@@ -360,7 +361,7 @@ static void write_iteration(int fd) {
     .revents = 0,
   };
 
-  int ret = poll(&pfd, 1, POLL_TIMEOUT);
+  int ret = poll(&pfd, 1, POLL_WRITE_TIMEOUT);
   if (ret == -1 && errno != EAGAIN) {
     // error
     PRINT_ERR("poll() failed: %s\n", strerror(errno));
