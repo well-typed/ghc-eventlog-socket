@@ -1,1 +1,1 @@
-packages: .
+packages: . examples/fibber/fibber.cabal

@@ -1,0 +1,57 @@
+name: "Setup ghc-events"
+description: "Install a specific ghc-events version"
+inputs:
+  ghc-events-version:
+    required: true
+    description: "Version of ghc-events"
+  ghc-version:
+    required: false
+    default: "latest"
+    description: "Version of GHC"
+  cabal-version:
+    required: false
+    default: "latest"
+    description: "Version of cabal"
+  hackage-index-state:
+    required: false
+    description: "Timestamp for Hackage index"
+runs:
+  using: composite
+  steps:
+    - name: 💾 Restore cache
+      uses: actions/cache/restore@v4
+      if: ${{ !env.ACT }}
+      id: cache-ghc-events
+      with:
+        path: "${{ github.workspace }}/.ghc-events/bin"
+        key: ${{ runner.os }}-ghc-events-${{ inputs.ghc-events-version }}-input-state-${{ inputs.hackage-index-state }}
+
+    - name: 🛠️ Install Haskell
+      if: ${{ env.ACT || steps.cache-ghc-events.outputs.cache-hit != 'true' }}
+      uses: haskell-actions/setup@v2
+      id: setup-haskell
+      with:
+        ghc-version: ${{ inputs.ghc-version }}
+        cabal-version: ${{ inputs.cabal-version }}
+
+    - name: 🛠️ Install ghc-events
+      if: ${{ env.ACT || steps.cache-ghc-events.outputs.cache-hit != 'true' }}
+      run: |
+        mkdir -p "${{ github.workspace }}/.ghc-events/bin"
+        cabal install ghc-events-${{ inputs.ghc-events-version }} \
+          ${{ inputs.hackage-index-state && format('--index-state={0}', inputs.hackage-index-state) }} \
+          --overwrite-policy=always \
+          --install-method=copy \
+          --installdir="${{ github.workspace }}/.ghc-events/bin"
+      shell: sh
+
+    - name: 🛠️ Add ghc-events to PATH
+      run: echo "${{ github.workspace }}/.ghc-events/bin" >> "$GITHUB_PATH"
+      shell: sh
+
+    - name: 💾 Save cache
+      uses: actions/cache/save@v4
+      if: ${{ !env.ACT && steps.cache-ghc-events.outputs.cache-hit != 'true' }}
+      with:
+        path: "${{ github.workspace }}/.ghc-events/bin"
+        key: ${{ steps.cache-ghc-events.outputs.cache-primary-key }}
