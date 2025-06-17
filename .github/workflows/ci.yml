@@ -19,8 +19,9 @@ jobs:
     name: |
       ${{ matrix.name
        || format(
-            'Build on {0}{1}',
-            startsWith(matrix.os, 'ubuntu-') && 'Linux' || startsWith(matrix.os, 'macOS-') && 'macOS' || startsWith(matrix.os, 'windows-') && 'Windows',
+            '{0} on {1}{2}',
+            startsWith(matrix.os, 'ubuntu-') && 'Build and Test' || startsWith(matrix.os, 'macOS-') && 'Build',
+            startsWith(matrix.os, 'ubuntu-') && 'Linux' || startsWith(matrix.os, 'macOS-') && 'macOS',
             matrix.ghc-version && format(' with GHC {0}', matrix.ghc-version)
           )
        }}
@@ -36,7 +37,18 @@ jobs:
           ghc-version: ${{ matrix.ghc-version }}
 
       - name: 🏗️ Build
-        run: cabal build
+        run: cabal build eventlog-socket
+
+      - name: 🛠️ Setup ghc-events
+        uses: ./.github/actions/setup-ghc-events
+        with:
+          ghc-events-version: "0.20.0.0"
+          ghc-version: ${{ matrix.ghc-version }}
+
+      - name: 🧪 Test
+        # NOTE: The fibber script appears to hang on macOS runners.
+        if: ${{ runner.os == 'Linux' }}
+        run: ./examples/fibber/fibber.sh
 
     strategy:
       matrix:
