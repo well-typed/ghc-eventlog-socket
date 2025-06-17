@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - "master"
+  pull_request:
+
+# Set the default shell on all platforms.
+defaults:
+  run:
+    shell: sh
+
+jobs:
+  ################################################################################
+  # Build
+  ################################################################################
+  build:
+    name: |
+      ${{ matrix.name
+       || format(
+            'Build on {0}{1}',
+            startsWith(matrix.os, 'ubuntu-') && 'Linux' || startsWith(matrix.os, 'macOS-') && 'macOS' || startsWith(matrix.os, 'windows-') && 'Windows',
+            matrix.ghc-version && format(' with GHC {0}', matrix.ghc-version)
+          )
+       }}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🛠️ Setup Haskell
+        id: setup-haskell
+        uses: haskell-actions/setup@v2
+        with:
+          ghc-version: ${{ matrix.ghc-version }}
+
+      - name: 🏗️ Build
+        run: cabal build
+
+    strategy:
+      matrix:
+        os:
+          - "ubuntu-latest"
+          - "macOS-latest"
+        ghc-version:
+          - "9.2.8"
+          - "9.4.8"
+          - "9.6.7"
+          - "9.8.4"
+          - "9.10.2"
+          - "9.12.2"
