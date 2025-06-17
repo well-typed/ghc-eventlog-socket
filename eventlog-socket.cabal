@@ -10,7 +10,14 @@ maintainer:         ben@smart-cactus.org
 copyright:          (c) 2018 Ben Gamari
 category:           System
 build-type:         Simple
-Tested-With: GHC ==8.10.7 || ==9.0.2 || ==9.2.7 || ==9.4.4 || ==9.6.1
+tested-with:
+  GHC ==9.2.8
+   || ==9.4.8
+   || ==9.6.7
+   || ==9.8.4
+   || ==9.10.2
+   || ==9.12.2
+
 extra-source-files:
   ChangeLog.md
   include/eventlog_socket.h
